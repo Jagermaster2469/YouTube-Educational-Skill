@@ -1,0 +1,263 @@
+# Prompts del Pipeline Educativo — Por etapa y modelo
+
+# ─── Stage 3: Chunking (Gemini 2.5-pro) ────────────────────────────────────
+# No necesita prompt — el script educational_pipeline.py maneja el chunking
+# mecánico. Gemini solo se usa si se requiere chunking semántico (temas).
+
+stage3_chunking_semantico: |
+  Eres un experto en análisis educativo. Divide la siguiente transcripción
+  de video en segmentos temáticos coherentes. Cada segmento debe representar
+  una idea o sección educativa completa.
+
+  Reglas:
+  - Máximo ~30,000 caracteres por segmento
+  - Respeta cortes naturales por tema
+  - Asigna un título descriptivo a cada segmento
+  - Identifica el timestamp de inicio y fin de cada segmento
+
+  Input: {transcript_text}
+
+# ─── Stage 4: Procesamiento Educativo (Gemini 2.5-pro) ─────────────────────
+
+stage4_educational_processing: |
+  Eres un profesor experto analizando contenido educativo de un video.
+  Tu tarea es generar una NOTA EDUCATIVA PROFUNDA (no un resumen superficial)
+  a partir del siguiente fragmento de transcripción.
+
+  Genera un JSON con esta estructura exacta (sin markdown, solo JSON):
+
+  {{
+    "section_title": "Título descriptivo de esta sección",
+    "narrative": "Explicación educativa detallada. Escribe como un profesor
+      explicando a un estudiante: usa ejemplos, analogías, conexiones con
+      otros temas. Mínimo 3 párrafos sustanciosos. NO es un resumen, es una
+      clase escrita.",
+    "concepts": [
+      {{
+        "name": "Nombre del concepto",
+        "definition": "Definición clara de 1-2 oraciones",
+        "timestamp": "MM:SS del video donde aparece",
+        "area": "Área temática (IA, Trading, Criptografía, etc.)",
+        "related": ["Concepto relacionado 1", "Concepto relacionado 2"],
+        "explanation": "Explicación semi-detallada del concepto (2-3 párrafos)",
+        "applications": "Aplicaciones prácticas de este concepto",
+        "glossary_terms": ["Término de glosario 1", "Término de glosario 2"]
+      }}
+    ],
+    "glossary": [
+      {{
+        "term": "Término nuevo",
+        "definition": "Definición breve y precisa",
+        "timestamp": "MM:SS"
+      }}
+    ]
+  }}
+
+  Fragmento de transcripción:
+  {chunk_text}
+
+  IMPORTANTE:
+  - Extrae AL MENOS 2 conceptos de cada fragmento
+  - Los glossary terms son términos técnicos específicos que merecen entrada propia
+  - La narrative debe ser sustanciosa, tipo clase universitaria
+  - Responde SOLO con el JSON, sin texto adicional
+
+# ─── Stage 5: Merge + Dedup + Wikilinks (GPT-5.5) ──────────────────────────
+
+stage5_merge_dedup: |
+  Eres un arquitecto de conocimiento. Tienes múltiples fragmentos procesados
+  de un mismo video educativo. Tu tarea es:
+
+  1. UNIFICAR las narratives en una sola nota educativa coherente
+  2. DEDUPLICAR conceptos (si dos chunks mencionan el mismo concepto, fusiónalos)
+  3. GENERAR wikilinks: identifica conexiones entre conceptos y formatéalos
+     como [[Nombre del Concepto]]
+  4. CLASIFICAR el tema principal del video (IA, Trading, Criptografía,
+     Desarrollo de Software, Matemáticas, Física, Biología, Historia,
+     Filosofía, Música, Ciberseguridad, Datos, u otro)
+  5. IDENTIFICAR el título del video basado en el contenido
+
+  Output JSON (solo JSON, sin markdown):
+  {{
+    "title": "Título descriptivo del video",
+    "auto_topic": "Tema principal (singular, en español, mayúscula inicial)",
+    "narrative": "Nota completa unificada con [[wikilinks]] a conceptos
+      incrustados en el texto. Mínimo 5 párrafos educativos profundos.",
+    "concepts": [
+      {{
+        "name": "Nombre del Concepto",
+        "definition": "Definición",
+        "timestamp": "MM:SS",
+        "area": "Área",
+        "related": ["Concepto A", "Concepto B"],
+        "explanation": "Explicación detallada del concepto",
+        "applications": "Aplicaciones",
+        "glossary_terms": ["Término 1"]
+      }}
+    ],
+    "glossary": [
+      {{
+        "term": "Término",
+        "definition": "Definición breve",
+        "timestamp": "MM:SS"
+      }}
+    ],
+    "connections": [
+      "Courses/Temas/{tema}/{{nota}}",
+      "Concepts/{{concepto}}"
+    ]
+  }}
+
+  Fragmentos procesados:
+  {chunks_json}
+
+  Reglas:
+  - Si dos conceptos tienen el mismo name, fusiónalos (conserva la mejor definición)
+  - Los wikilinks van en formato [[Concepts/Nombre-Del-Concepto|Nombre del Concepto]]
+  - No dupliques términos del glosario
+  - La narrative debe ser educativa y fluida
+  - Timestamps: formato MM:SS
+
+# ─── Stage 6: Vault Writing (GPT-5.5) ──────────────────────────────────────
+
+stage6_vault_write: |
+  Has recibido los datos procesados del video. Verifica que:
+  - Todos los conceptos tengan nombre, definición y timestamp
+  - Todos los términos de glosario tengan definición
+  - La narrative sea educativamente sustanciosa
+  - Los wikilinks apunten correctamente
+
+  Si todo está correcto, confirma con: {{"status": "ok", "concept_count": N, "glossary_count": M}}
+  Si falta información, completa los campos vacíos con contenido educativo coherente.
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# English versions — for international users and non-Spanish vaults
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ─── Stage 3: Semantic Chunking (Gemini 2.5-pro) ────────────────────────────
+
+stage3_chunking_semantico_en: |
+  You are an expert in educational analysis. Divide the following video
+  transcript into coherent thematic segments. Each segment should represent
+  a complete educational idea or section.
+
+  Rules:
+  - Maximum ~30,000 characters per segment
+  - Respect natural topic breaks
+  - Assign a descriptive title to each segment
+  - Identify the start and end timestamp for each segment
+
+  Input: {transcript_text}
+
+# ─── Stage 4: Educational Processing (Gemini 2.5-pro) ───────────────────────
+
+stage4_educational_processing_en: |
+  You are an expert educator analyzing educational content from a video.
+  Your task is to generate a DEEP EDUCATIONAL NOTE (not a superficial summary)
+  from the following transcript fragment.
+
+  Generate a JSON with this exact structure (no markdown, only JSON):
+
+  {{
+    "section_title": "Descriptive title for this section",
+    "narrative": "Detailed educational explanation. Write like a teacher
+      explaining to a student: use examples, analogies, connections to
+      other topics. Minimum 3 substantial paragraphs. This is NOT a summary,
+      this is a written lecture.",
+    "concepts": [
+      {{
+        "name": "Concept name",
+        "definition": "Clear 1-2 sentence definition",
+        "timestamp": "MM:SS of the video where it appears",
+        "area": "Subject area (AI, Trading, Cryptography, etc.)",
+        "related": ["Related concept 1", "Related concept 2"],
+        "explanation": "Semi-detailed explanation of the concept (2-3 paragraphs)",
+        "applications": "Practical applications of this concept",
+        "glossary_terms": ["Glossary term 1", "Glossary term 2"]
+      }}
+    ],
+    "glossary": [
+      {{
+        "term": "New term",
+        "definition": "Brief and precise definition",
+        "timestamp": "MM:SS"
+      }}
+    ]
+  }}
+
+  Transcript fragment:
+  {chunk_text}
+
+  IMPORTANT:
+  - Extract AT LEAST 2 concepts from each fragment
+  - Glossary terms are specific technical terms that deserve their own entry
+  - The narrative must be substantial, university lecture style
+  - Respond ONLY with the JSON, no additional text
+
+# ─── Stage 5: Merge + Dedup + Wikilinks (GPT-5.5) ───────────────────────────
+
+stage5_merge_dedup_en: |
+  You are a knowledge architect. You have multiple processed fragments
+  from the same educational video. Your task is:
+
+  1. UNIFY the narratives into a single coherent educational note
+  2. DEDUPLICATE concepts (if two chunks mention the same concept, merge them)
+  3. GENERATE wikilinks: identify connections between concepts and format them
+     as [[Concept Name]]
+  4. CLASSIFY the main topic of the video (AI, Trading, Cryptography,
+     Software Development, Mathematics, Physics, Biology, History,
+     Philosophy, Music, Cybersecurity, Data, or other)
+  5. IDENTIFY the video title based on the content
+
+  Output JSON (only JSON, no markdown):
+  {{
+    "title": "Descriptive video title",
+    "auto_topic": "Main topic (singular, English, title case)",
+    "narrative": "Complete unified note with [[wikilinks]] to concepts
+      embedded in the text. Minimum 5 deep educational paragraphs.",
+    "concepts": [
+      {{
+        "name": "Concept Name",
+        "definition": "Definition",
+        "timestamp": "MM:SS",
+        "area": "Area",
+        "related": ["Concept A", "Concept B"],
+        "explanation": "Detailed explanation of the concept",
+        "applications": "Applications",
+        "glossary_terms": ["Term 1"]
+      }}
+    ],
+    "glossary": [
+      {{
+        "term": "Term",
+        "definition": "Brief definition",
+        "timestamp": "MM:SS"
+      }}
+    ],
+    "connections": [
+      "Courses/Temas/{topic}/{{note}}",
+      "Concepts/{{concept}}"
+    ]
+  }}
+
+  Processed fragments:
+  {chunks_json}
+
+  Rules:
+  - If two concepts share the same name, merge them (keep the best definition)
+  - Wikilinks use format [[Concepts/Concept-Name|Concept Name]]
+  - Do not duplicate glossary terms
+  - The narrative must be educational and fluid
+  - Timestamps: MM:SS format
+
+# ─── Stage 6: Vault Writing (GPT-5.5) ───────────────────────────────────────
+
+stage6_vault_write_en: |
+  You have received the processed data from the video. Verify that:
+  - All concepts have name, definition, and timestamp
+  - All glossary terms have a definition
+  - The narrative is educationally substantial
+  - Wikilinks point correctly
+
+  If everything is correct, confirm with: {{"status": "ok", "concept_count": N, "glossary_count": M}}
+  If information is missing, complete empty fields with coherent educational content.

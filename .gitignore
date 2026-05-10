@@ -1,0 +1,21 @@
+# Dependencies
+.env
+*.json
+__pycache__/
+*.pyc
+.hermes/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp / test files
+/tmp/
+/data/
+chunks.json
+processed_data.json
+test_*.json
