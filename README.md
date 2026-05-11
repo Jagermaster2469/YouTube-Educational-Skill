@@ -1,4 +1,4 @@
-# 🎓 YouTube Educational Pipeline
+# 🎓 YouTube Educational Pipeline Skill for Personal AI Agents
 
 🇬🇧 English below
 
@@ -44,7 +44,6 @@
 > - 🔑 **Google AI Studio** ofrece una API key gratuita para Gemini con cuotas generosas. Consíguela en [aistudio.google.com](https://aistudio.google.com).
 > - 🌐 **GPT-5.5** está disponible vía [OpenRouter](https://openrouter.ai) sin necesidad de suscripción directa a OpenAI — pagas solo por uso.
 > - 🔄 No estás atado a estos modelos: podés usar **cualquier LLM** que prefieras (Claude, Llama, DeepSeek, etc.). Sin embargo, **esta combinación (Default + Gemini 2.5-pro + GPT-5.5) es la que mejor resultados ofrece en relación costo-beneficio**, balanceando profundidad educativa, precisión estructural y eficiencia económica.
-> - 🆓 Con las APIs gratuitas o pay-as-you-go, procesar un video típico de 20–40 minutos cuesta **menos de $0.10 USD**.
 
 ### 📂 Estructura del vault
 
@@ -93,7 +92,7 @@ python3 pipeline/educational_pipeline.py write processed_data.json --topic "Tu T
 ### 🔧 Dependencias
 
 - **Requerido:** `youtube-transcript-api`
-- **Opcional:** `chromadb` (deduplicación semántica), `genanki` (exportar a Anki)
+- **Opcional:** `chromadb` (deduplicación semántica), `genanki` (exportar a Anki), `obsidian` (vault)
 
 ### 📝 Templates
 
@@ -144,7 +143,6 @@ Los prompts exactos para cada etapa del pipeline están en `skill/references/pro
 > - 🔑 **Google AI Studio** provides a free API key for Gemini with generous quotas. Grab yours at [aistudio.google.com](https://aistudio.google.com).
 > - 🌐 **GPT-5.5** is available via [OpenRouter](https://openrouter.ai) — no direct OpenAI subscription needed, pay only for what you use.
 > - 🔄 You're not locked into these models: you can use **any LLM** you prefer (Claude, Llama, DeepSeek, etc.). However, **this combination (Default + Gemini 2.5-pro + GPT-5.5) delivers the best cost-to-quality ratio**, balancing educational depth, structural precision, and economic efficiency.
-> - 🆓 With free or pay-as-you-go APIs, processing a typical 20–40 minute video costs **under $0.10 USD**.
 
 ### 📂 Vault structure
 
@@ -193,7 +191,7 @@ python3 pipeline/educational_pipeline.py write processed_data.json --topic "Your
 ### 🔧 Dependencies
 
 - **Required:** `youtube-transcript-api`
-- **Optional:** `chromadb` (semantic deduplication), `genanki` (export to Anki)
+- **Optional:** `chromadb` (semantic deduplication), `genanki` (export to Anki), `obsidian` (vault)
 
 ### 📝 Templates
 
